@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 
 import com.app.indicator.slidebar.ScrollBar;
 import com.app.indicator.slidebar.ScrollBar.Gravity;
@@ -484,7 +485,7 @@ public class ScrollIndicatorView extends HorizontalScrollView implements Indicat
         }
 
         private int measureChildWidth(View view, int widthSpec, int heightSpec) {
-            FrameLayout.LayoutParams p = (FrameLayout.LayoutParams) view.getLayoutParams();
+            LinearLayout.LayoutParams p = (LinearLayout.LayoutParams) view.getLayoutParams();
             int childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec, getPaddingLeft() + getPaddingRight(), FrameLayout.LayoutParams.WRAP_CONTENT);
             int childHeightSpec = ViewGroup.getChildMeasureSpec(heightSpec, getPaddingTop() + getPaddingBottom(), p.height);
             view.measure(childWidthSpec, childHeightSpec);
