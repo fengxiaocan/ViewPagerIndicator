@@ -116,7 +116,11 @@ public abstract class FragmentListPageAdapter extends PagerAdapter{
             mCurTransaction = mFragmentManager.beginTransaction();
         }
 
-        mSavedState.put(position,fragment.isAdded() ? mFragmentManager.saveFragmentInstanceState(fragment) : null);
+        try{
+            mSavedState.put(position,fragment.isAdded() ? mFragmentManager.saveFragmentInstanceState(fragment) : null);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
         mFragments.remove(position);
 
         mCurTransaction.remove(fragment);
