@@ -426,11 +426,6 @@ public class IndicatorViewPager {
                 public float getPageWidth(int position) {
                     return IndicatorFragmentPagerAdapter.this.getPageRatio(getRealPosition(position));
                 }
-
-                @Override
-                public int getItemPosition(Object object) {
-                    return IndicatorFragmentPagerAdapter.this.getItemPosition(object);
-                }
             };
         }
 
@@ -447,10 +442,6 @@ public class IndicatorViewPager {
             }
 
         };
-
-        public int getItemPosition(Object object) {
-            return FragmentListPageAdapter.POSITION_UNCHANGED;
-        }
 
         /**
          * 获取position位置上的Fragment，Fragment没有被创建时返回null

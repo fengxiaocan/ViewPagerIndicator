@@ -28,8 +28,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.PagerAdapter;
 
 /**
- * Implementation of {@link androidx.viewpager.widget.PagerAdapter} that uses a
- * {@link androidx.fragment.app.Fragment} to manage each page. This class also handles saving and
+ * Implementation of {@link PagerAdapter} that uses a
+ * {@link Fragment} to manage each page. This class also handles saving and
  * restoring of fragment's state.
  * This version of the pager is more useful when there are a large number of
  * pages, working more like a list view. When pages are not visible to the user,
@@ -39,7 +39,7 @@ import androidx.viewpager.widget.PagerAdapter;
  * cost of potentially more overhead when switching between pages.
  * When using FragmentPagerAdapter the host ViewPager must have a valid ID set.
  * Subclasses only need to implement {@link #getItem(int)} and
- * {@link androidx.viewpager.widget.PagerAdapter#getCount()} to have a working adapter.
+ * {@link PagerAdapter#getCount()} to have a working adapter.
  * Here is an example implementation of a pager containing fragments of lists:
  * {
  * development/samples/Support13Demos/src/com/example/android/supportv13/app/
@@ -54,28 +54,27 @@ import androidx.viewpager.widget.PagerAdapter;
  * development/samples/Support13Demos/res/layout/fragment_pager_list.xml
  * complete}
  */
-public abstract class FragmentListPageAdapter extends BaseFragmentPageAdapter{
+public abstract class FragmentSavedStatePageAdapter extends BaseFragmentPageAdapter{
 
     protected final FragmentManager mFragmentManager;
     protected FragmentTransaction mCurTransaction = null;
 
-//    protected SparseArray<Fragment.SavedState> mSavedState = new SparseArray<>();
+    protected SparseArray<Fragment.SavedState> mSavedState = new SparseArray<>();
     protected SparseArray<Fragment> mFragments = new SparseArray<>();
     protected Fragment mCurrentPrimaryItem = null;
 
-    public FragmentListPageAdapter(FragmentManager fm){
+    public FragmentSavedStatePageAdapter(FragmentManager fm){
         mFragmentManager = fm;
     }
+
 
     @Override
     public void startUpdate(ViewGroup container){
     }
-
     @Override
     public Fragment getExitFragment(int position){
         return mFragments.get(position);
     }
-
     @Override
     public Fragment getCurrentFragment(){
         return mCurrentPrimaryItem;
@@ -93,10 +92,10 @@ public abstract class FragmentListPageAdapter extends BaseFragmentPageAdapter{
         }
 
         Fragment fragment = getItem(position);
-//        Fragment.SavedState fss = mSavedState.get(position);
-//        if(fss != null){
-//            fragment.setInitialSavedState(fss);
-//        }
+        Fragment.SavedState fss = mSavedState.get(position);
+        if(fss != null){
+            fragment.setInitialSavedState(fss);
+        }
         fragment.setMenuVisibility(false);
         fragment.setUserVisibleHint(false);
         mFragments.put(position,fragment);
@@ -113,11 +112,11 @@ public abstract class FragmentListPageAdapter extends BaseFragmentPageAdapter{
             mCurTransaction = mFragmentManager.beginTransaction();
         }
 
-//        try{
-//            mSavedState.put(position,fragment.isAdded() ? mFragmentManager.saveFragmentInstanceState(fragment) : null);
-//        } catch(Exception e){
-//            e.printStackTrace();
-//        }
+        try{
+            mSavedState.put(position,fragment.isAdded() ? mFragmentManager.saveFragmentInstanceState(fragment) : null);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
         mFragments.remove(position);
 
         mCurTransaction.remove(fragment);
@@ -153,49 +152,49 @@ public abstract class FragmentListPageAdapter extends BaseFragmentPageAdapter{
         return ((Fragment)object).getView() == view;
     }
 
-//    @Override
-//    public Parcelable saveState(){
-//        Bundle state = null;
-//        if(mSavedState.size() > 0){
-//            state = new Bundle();
-//            state.putSparseParcelableArray("states",mSavedState.clone());
-//        }
-//        int size = mFragments.size();
-//        for(int i = 0;i < size;i++){
-//            int index = mFragments.keyAt(i);
-//            Fragment f = mFragments.valueAt(i);
-//            if(f != null && f.isAdded()){
-//                if(state == null){
-//                    state = new Bundle();
-//                }
-//                String key = "f" + index;
-//                mFragmentManager.putFragment(state,key,f);
-//            }
-//        }
-//        return state;
-//    }
-//
-//    @Override
-//    public void restoreState(Parcelable state,ClassLoader loader){
-//        if(state != null){
-//            Bundle bundle = (Bundle)state;
-//            bundle.setClassLoader(loader);
-//            mSavedState.clear();
-//            mFragments.clear();
-//            if(bundle.containsKey("states")){
-//                mSavedState = bundle.getSparseParcelableArray("states");
-//            }
-//            Iterable<String> keys = bundle.keySet();
-//            for(String key: keys){
-//                if(key.startsWith("f")){
-//                    int index = Integer.parseInt(key.substring(1));
-//                    Fragment f = mFragmentManager.getFragment(bundle,key);
-//                    if(f != null){
-//                        f.setMenuVisibility(false);
-//                        mFragments.put(index,f);
-//                    }
-//                }
-//            }
-//        }
-//    }
+    @Override
+    public Parcelable saveState(){
+        Bundle state=null;
+        if(mSavedState.size()>0){
+            state=new Bundle();
+            state.putSparseParcelableArray("states",mSavedState.clone());
+        }
+        int size=mFragments.size();
+        for(int i=0;i<size;i++){
+            int index=mFragments.keyAt(i);
+            Fragment f=mFragments.valueAt(i);
+            if(f!=null&&f.isAdded()){
+                if(state==null){
+                    state=new Bundle();
+                }
+                String key="f"+index;
+                mFragmentManager.putFragment(state,key,f);
+            }
+        }
+        return state;
+    }
+
+    @Override
+    public void restoreState(Parcelable state,ClassLoader loader){
+        if(state!=null){
+            Bundle bundle=(Bundle)state;
+            bundle.setClassLoader(loader);
+            mSavedState.clear();
+            mFragments.clear();
+            if(bundle.containsKey("states")){
+                mSavedState=bundle.getSparseParcelableArray("states");
+            }
+            Iterable<String> keys=bundle.keySet();
+            for(String key: keys){
+                if(key.startsWith("f")){
+                    int index=Integer.parseInt(key.substring(1));
+                    Fragment f=mFragmentManager.getFragment(bundle,key);
+                    if(f!=null){
+                        f.setMenuVisibility(false);
+                        mFragments.put(index,f);
+                    }
+                }
+            }
+        }
+    }
 }
